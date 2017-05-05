@@ -6,6 +6,7 @@
 package Main;
 
 import DownLoad.ConnectXml;
+import java.io.File;
 
 /**
  *
@@ -13,10 +14,11 @@ import DownLoad.ConnectXml;
  */
 public class Main {
     public static void main(String[] args) {
-       // int[] a = {1,2,3};
-       String filePath="C:\\Users\\Administrator\\Desktop\\";
-        String fileName="tag.xml";
-     //   ConnectXml.writeToXml(a, filePath, fileName);
-        ConnectXml.buildXml(filePath,fileName);
+      int[] a = {1,2,3};
+       String filePath="C:\\Users\\hzu\\Desktop\\";
+        String fileName="test.exe";
+        a=ConnectXml.readXml(filePath, fileName);
+         System.out.println("test");
+        System.out.println(a[0]+""+a[1]+""+a[2]);
     }
 }

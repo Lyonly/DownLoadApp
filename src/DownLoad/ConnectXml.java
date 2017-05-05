@@ -20,6 +20,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -27,32 +28,57 @@ import org.w3c.dom.DOMException;
  */
 public class ConnectXml {
 
-    public static void readXml(String filePath, String fileName) {
-
-    }
-
-    public static void writeToXml(int[] current, String filePath, String fileName) {
-
-    }
-
-    public static void buildXml(String filePath, String fileName) {
+    public static int[] readXml(String filePath, String fileName) {
+        int[] back=new int[3];
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.newDocument();
-            doc.setXmlVersion("1.0");
-            doc.setXmlStandalone(true);
-            Element root = doc.createElement("Task-info");
-            root.setAttribute("ID", fileName);
-            doc.appendChild(root);
-            
-            TransformerFactory transFactory = TransformerFactory.newInstance();
+            File file = new File(filePath + "info.xml");
+            Document doc = db.parse(file);
+            Element root = doc.getDocumentElement();
+            NodeList nl = root.getElementsByTagName(fileName);
+            for (int i = 0; i < nl.getLength(); i++) {
+                Element task = (Element) nl.item(i);
+                
+                for (int k = 0; k < 3; k++) {
+                    back[k] = Integer.getInteger(task.getAttribute("thread" + k));
+                }
+                System.out.println("DownLoad.ConnectXml.readXml()");
+            }
+
+        } catch (Exception ex) {
+        }
+        return back;
+    }
+
+    public static void writeToXml(int[] current, String filePath, String fileName) {
+           try{
+               DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+               DocumentBuilder db = dbf.newDocumentBuilder();
+               Document doc = null;
+               File file = new File(filePath+"info.xml");
+               if (!file.exists()) {
+                file.createNewFile();
+                doc = db.newDocument();
+                Element roott = doc.createElement("Task-info");
+                doc.appendChild(roott);
+                }
+               else{
+                 doc = db.parse(file);
+               }
+               doc.setXmlVersion("1.0");
+               doc.setXmlStandalone(true);
+               
+               Element root = doc.getDocumentElement();
+               Element task = doc.createElement(fileName);
+               for(int i=0;i<3;i++){
+                   task.setAttribute("thread"+i,current[i]+"");
+               }
+               root.appendChild(task);
+               TransformerFactory transFactory = TransformerFactory.newInstance();
             Transformer transFormer = transFactory.newTransformer();
             DOMSource domSource = new DOMSource(doc);
-            File file = new File(filePath+fileName);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+            
             FileOutputStream out = new FileOutputStream(file);
             StreamResult xmlResult = new StreamResult(out);
             
@@ -60,10 +86,9 @@ public class ConnectXml {
             transFormer.setOutputProperty(OutputKeys.INDENT, "yes");  
             transFormer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transFormer.transform(domSource, xmlResult);
-            System.out.println(file.getAbsolutePath());
-        } catch (IOException | IllegalArgumentException | ParserConfigurationException | TransformerException | DOMException ex) {
-            System.out.println(ex);
-        }
+           }catch(Exception ex){
+           }
     }
+
 
 }
